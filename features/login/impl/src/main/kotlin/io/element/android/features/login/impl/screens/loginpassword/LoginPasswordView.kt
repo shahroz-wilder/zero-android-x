@@ -7,6 +7,8 @@
 
 package io.element.android.features.login.impl.screens.loginpassword
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,8 +22,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -66,7 +71,7 @@ import io.element.android.libraries.testtags.TestTags
 import io.element.android.libraries.testtags.testTag
 import io.element.android.libraries.ui.strings.CommonStrings
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun LoginPasswordView(
     state: LoginPasswordState,
@@ -87,7 +92,55 @@ fun LoginPasswordView(
         state.eventSink(LoginPasswordEvents.Submit)
     }
 
-    Scaffold(
+    val modalSheetState =
+        rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
+//        val uiState: AuthScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val loginValidator: LoginValidator = LoginValidator.empty()//by viewModel.loginValidator.collectAsStateWithLifecycle()
+    val isWalletConnected = false//: Boolean by viewModel.isWalletConnected.collectAsStateWithLifecycle()
+
+    val walletLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = {
+//                    viewModel.onWalletConnectActivityResult(it)
+            }
+        )
+
+//        DisposableEffect(Unit) { onDispose { viewModel.dispose() } }
+    BackHandler {
+//            onBack()
+    }
+
+//        if (uiState.state == AuthUiState.Success) {
+//            LaunchedEffect(Unit) { onUserLoggedIn(viewModel.inviteCode) }
+//        } else {
+//            LaunchedEffect(Unit) {
+//                viewModel.setWalletConnectionCallback { intent -> walletLauncher.launch(intent) }
+//            }
+    LoginScreen(
+//            bottomSheetNavigator = bottomSheetNavigator,
+        uiState = state,//uiState.state,
+        loginValidator = loginValidator,
+        isWalletConnected = isWalletConnected,
+        onBack = {
+//                onBack
+        },
+        onLogin = { email, password ->
+//                viewModel.login(email, password)
+        },
+//            onInitiateWalletConnect = {
+//                viewModel.dispose()
+//                navController.openWalletConnectModal()
+//            },
+        onResetPassword = {
+//                onResetPassword
+        }
+    )
+
+   /* Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
@@ -152,7 +205,7 @@ fun LoginPasswordView(
                 })
             }
         }
-    }
+    }*/
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

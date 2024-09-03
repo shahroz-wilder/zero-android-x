@@ -50,15 +50,17 @@ class OnBoardingNode @AssistedInject constructor(
 
     @Composable
     override fun View(modifier: Modifier) {
-        val state = presenter.present()
-        OnBoardingView(
-            state = state,
-            modifier = modifier,
-            onSignIn = ::onSignIn,
-            onCreateAccount = ::onSignUp,
-            onSignInWithQrCode = ::onSignInWithQrCode,
-            onOpenDeveloperSettings = ::onOpenDeveloperSettings,
-            onReportProblem = ::onReportProblem,
-        )
+        onSignIn()
+        /*        val state = presenter.present()
+
+                OnBoardingView(
+                    state = state,
+                    modifier = modifier,
+                    onSignIn = ::onSignIn,
+                    onCreateAccount = ::onSignUp,
+                    onSignInWithQrCode = ::onSignInWithQrCode,
+                    onOpenDeveloperSettings = ::onOpenDeveloperSettings,
+                    onReportProblem = ::onReportProblem,
+                )*/
     }
 }

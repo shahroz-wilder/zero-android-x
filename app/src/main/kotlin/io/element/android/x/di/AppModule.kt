@@ -27,6 +27,8 @@ import io.element.android.libraries.di.AppScope
 import io.element.android.libraries.di.ApplicationContext
 import io.element.android.libraries.di.CacheDirectory
 import io.element.android.libraries.di.SingleIn
+import io.element.android.libraries.matrix.impl.auth.ZeroAuthService
+import io.element.android.libraries.network.RetrofitFactory
 import io.element.android.x.BuildConfig
 import io.element.android.x.R
 import kotlinx.coroutines.CoroutineName
@@ -48,6 +50,11 @@ object AppModule {
     @CacheDirectory
     fun providesCacheDirectory(@ApplicationContext context: Context): File {
         return context.cacheDir
+    }
+
+    @Provides
+    fun providesZeroAuthService(retrofit: RetrofitFactory): ZeroAuthService {
+        return retrofit.create("https://zos.zero.tech").create(ZeroAuthService::class.java)
     }
 
     @Provides

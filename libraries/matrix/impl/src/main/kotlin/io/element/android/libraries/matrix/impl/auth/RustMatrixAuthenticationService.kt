@@ -41,6 +41,7 @@ import org.matrix.rustcomponents.sdk.HumanQrLoginException
 import org.matrix.rustcomponents.sdk.QrCodeDecodeException
 import org.matrix.rustcomponents.sdk.QrLoginProgress
 import org.matrix.rustcomponents.sdk.QrLoginProgressListener
+import org.matrix.rustcomponents.sdk.Session
 import org.matrix.rustcomponents.sdk.use
 import timber.log.Timber
 import uniffi.matrix_sdk.OidcAuthorizationData
@@ -55,6 +56,7 @@ class RustMatrixAuthenticationService @Inject constructor(
     private val rustMatrixClientFactory: RustMatrixClientFactory,
     private val passphraseGenerator: PassphraseGenerator,
     private val oidcConfigurationProvider: OidcConfigurationProvider,
+    private val zeroAuthService: ZeroAuthService
 ) : MatrixAuthenticationService {
     // Passphrase which will be used for new sessions. Existing sessions will use the passphrase
     // stored in the SessionData.
@@ -132,6 +134,41 @@ class RustMatrixAuthenticationService @Inject constructor(
 
     override suspend fun login(username: String, password: String): Result<SessionId> =
         withContext(coroutineDispatchers.io) {
+            runSafeCall {
+                val client = currentClient ?: error("You need to call `setHomeserver()` first")
+                val currentSessionPath = sessionPath ?: error("You need to call `setHomeserver()` first")
+                val payload = AuthoriseUserRequest.newRequest(username, password)
+                val zeroAuthRequest = zeroAuthService.authorise(payload)
+//                preferences.setZeroAuthCredential(zeroAuthRequest.toModel())
+                val authCredentials = proceedLoginFlow()
+
+
+                val matrixSession = Session(
+                    accessToken = authCredentials.accessToken,
+                    refreshToken = null,
+                    userId = authCredentials.userId,
+                    deviceId = authCredentials.deviceId,
+                    homeserverUrl = authCredentials.homeServer,
+                    oidcData = null,
+                    slidingSyncProxy = null
+                )
+                client.restoreSession(matrixSession)
+                val sessionData = client.session()
+                    .toSessionData(
+                        isTokenValid = true,
+                        loginType = LoginType.PASSWORD,
+                        passphrase = pendingPassphrase,
+                        sessionPath = currentSessionPath.absolutePath,
+                    )
+                clear()
+                sessionStore.storeData(sessionData)
+                Result.success(SessionId(sessionData.userId))
+
+                //val authCredentials = proceedLoginFlow(zeroAuthRequest)
+                //authCredentials.toModel()
+            }
+        }
+     /*   withContext(coroutineDispatchers.io) {
             runCatching {
                 val client = currentClient ?: error("You need to call `setHomeserver()` first")
                 val currentSessionPaths = sessionPaths ?: error("You need to call `setHomeserver()` first")
@@ -150,8 +187,45 @@ class RustMatrixAuthenticationService @Inject constructor(
                 failure.mapAuthenticationException()
             }
         }
-
+*/
     private var pendingOidcAuthorizationData: OidcAuthorizationData? = null
+
+    private suspend fun proceedLoginFlow(): ZeroMatrixAuthCredentials {
+//        preferences.setZeroAuthCredential(authCredentials.toModel())
+        val ssoRequest = zeroAuthService.getSSOToken()
+
+        //getch mattix session and resilt is [ut here
+        return fetchMatrixSession(ssoRequest.token)
+//        return authService.createSessionFromSSO(clientAuthorisationRequest)
+    }
+
+    private suspend fun fetchMatrixSession(token: String): ZeroMatrixAuthCredentials {
+        val homeAddress = "https://zos-home-2-e24b9412096f.herokuapp.com"//"https://zero-synapse-development-db365bf96189.herokuapp.com"//appSettings.defaultHomeServerAddress
+        val url = "$homeAddress/${MATRIX_API_AUTH}"
+
+        val host = if (homeAddress.startsWith("https://")) {
+            homeAddress.substringAfter("https://")
+        } else {
+            homeAddress
+        }
+
+        val parameters = mapOf(
+            "token" to token,
+            "type" to "org.matrix.login.jwt"//AuthConstants.ssoTokenType
+        )
+        val param = Param(token,"org.matrix.login.jwt")
+
+        val headers = mapOf(
+            "Host" to host,
+            "Origin" to "https://zos.zero.tech"//AuthConstants.origin
+        )
+
+        return zeroAuthService.fetchMatrixSession(url,host, params = param)//parameters)
+        //zeroAuthService.matrixClientAuthorisation(
+        //        url = url,
+         //       payload = MatrixClientAuthRequest.newRequest(token)
+           // )
+    }
 
     override suspend fun getOidcUrl(): Result<OidcDetails> {
         return withContext(coroutineDispatchers.io) {
@@ -262,4 +336,16 @@ class RustMatrixAuthenticationService @Inject constructor(
         currentClient?.close()
         currentClient = null
     }
+
+    private suspend fun <T> runSafeCall(run: suspend () -> T) =
+        try {
+            run()
+        } catch (e: Throwable) {
+            throw e
+        }
+
+    companion object {
+        private const val MATRIX_API_AUTH = "_matrix/client/r0/login"
+    }
 }
+data class Param(val token:String,val type:String)

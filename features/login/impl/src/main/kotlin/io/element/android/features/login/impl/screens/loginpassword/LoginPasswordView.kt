@@ -9,23 +9,15 @@ package io.element.android.features.login.impl.screens.loginpassword
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -46,25 +38,22 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.example.zero.components.BackHandler
+import com.example.zero.LoginScreen
+import com.example.zero.utils.LoginValidator
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.login.impl.R
 import io.element.android.features.login.impl.error.loginError
 import io.element.android.libraries.architecture.AsyncData
-import io.element.android.libraries.designsystem.atomic.molecules.ButtonColumnMolecule
-import io.element.android.libraries.designsystem.atomic.molecules.IconTitleSubtitleMolecule
-import io.element.android.libraries.designsystem.components.button.BackButton
 import io.element.android.libraries.designsystem.components.dialogs.ErrorDialog
 import io.element.android.libraries.designsystem.components.form.textFieldState
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
-import io.element.android.libraries.designsystem.theme.components.Button
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconButton
 import io.element.android.libraries.designsystem.theme.components.OutlinedTextField
-import io.element.android.libraries.designsystem.theme.components.Scaffold
 import io.element.android.libraries.designsystem.theme.components.Text
-import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.designsystem.theme.components.autofill
 import io.element.android.libraries.designsystem.theme.components.onTabOrEnterKeyFocusNext
 import io.element.android.libraries.testtags.TestTags
@@ -110,9 +99,9 @@ fun LoginPasswordView(
         )
 
 //        DisposableEffect(Unit) { onDispose { viewModel.dispose() } }
-    BackHandler {
-//            onBack()
-    }
+//    BackHandler {
+//        onBackClick()
+//    }
 
 //        if (uiState.state == AuthUiState.Success) {
 //            LaunchedEffect(Unit) { onUserLoggedIn(viewModel.inviteCode) }
@@ -120,25 +109,42 @@ fun LoginPasswordView(
 //            LaunchedEffect(Unit) {
 //                viewModel.setWalletConnectionCallback { intent -> walletLauncher.launch(intent) }
 //            }
-    LoginScreen(
+
+        LoginScreen(
 //            bottomSheetNavigator = bottomSheetNavigator,
-        uiState = state,//uiState.state,
-        loginValidator = loginValidator,
-        isWalletConnected = isWalletConnected,
-        onBack = {
-//                onBack
-        },
-        onLogin = { email, password ->
-//                viewModel.login(email, password)
-        },
+//        uiState = state,//uiState.state,
+            isLoading = isLoading,
+            loginValidator = loginValidator,
+            isWalletConnected = isWalletConnected,
+            onBack = onBackClick,
+            onLogin = { email, password ->
+                val sanitizedEmail = email.sanitize()
+                state.eventSink(LoginPasswordEvents.SetLogin(sanitizedEmail))
+                val sanitizedPassword = password.sanitize()
+                state.eventSink(LoginPasswordEvents.SetPassword(sanitizedPassword))
+                submit()
+            },
 //            onInitiateWalletConnect = {
 //                viewModel.dispose()
 //                navController.openWalletConnectModal()
 //            },
-        onResetPassword = {
+            onResetPassword = {
 //                onResetPassword
+            }
+        )
+
+    if (state.loginAction is AsyncData.Failure) {
+        when {
+            state.loginAction.error.isWaitListError() -> {
+                onWaitListError(state.formState)
+            }
+            else -> {
+                LoginErrorDialog(error = state.loginAction.error, onDismiss = {
+                    state.eventSink(LoginPasswordEvents.ClearError)
+                })
+            }
         }
-    )
+    }
 
    /* Scaffold(
         modifier = modifier,

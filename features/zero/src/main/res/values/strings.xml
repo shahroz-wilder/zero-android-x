@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2024 New Vector Ltd
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="log_in">Log In</string>
+    <string name="web3">Web3</string>
+    <string name="email">Email</string>
+    <string name="connect_a_wallet">Connect a Wallet</string>
+    <string name="email_address">Email address</string>
+    <string name="password_criteria">Must include at least 8 characters, 1 number, 1 lowercase and 1 uppercase letter</string>
+    <string name="weak">Weak</string>
+    <string name="acceptable">Acceptable</string>
+    <string name="strong">Strong</string>
+    <string name="password_strength">Password Strength:</string>
+    <string name="password_validation"><![CDATA[Password must have 8 characters, including 1 number, 1 uppercase letter and 1 special character (!, @, #, $, %, ^, &amp;, *).]]></string>
+    <string name="field_required">Field is required</string>
+    <string name="error_user_name_length">Display name must be at least 3 characters long</string>
+    <string name="error_user_name_max_length">Name must be 24 characters or less</string>
+    <string name="email_required">Email is required</string>
+    <string name="error_invalid_email">Email is invalid</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_mismatch_error">Passwords do not match</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset">Reset</string>
+    <string name="error_incorrect_email_password">Incorrect Email or Password</string>
+    <string name="error_generic_authorise">Failed to verify your credentials. Try again later</string>
+    <string name="wallet_connected">Wallet Connected</string>
+</resources>

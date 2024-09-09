@@ -27,7 +27,6 @@ anvil {
 
 dependencies {
     implementation(projects.anvilannotations)
-    implementation(project(":features:login:impl"))
     anvil(projects.anvilcodegen)
     implementation(projects.appconfig)
     implementation(projects.libraries.core)

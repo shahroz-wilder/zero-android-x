@@ -34,7 +34,7 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 
 class MainActivity : ComponentActivity() {
-    private val matrixAuthenticationService: MatrixAuthenticationService by lazy {
+  /*  private val matrixAuthenticationService: MatrixAuthenticationService by lazy {
         val baseDirectory = File(applicationContext.filesDir, "sessions")
         val userAgentProvider = SimpleUserAgentProvider("MinimalSample")
         val sessionStore = InMemorySessionStore()
@@ -60,15 +60,15 @@ class MainActivity : ComponentActivity() {
             passphraseGenerator = NullPassphraseGenerator(),
             oidcConfigurationProvider = OidcConfigurationProvider(baseDirectory),
         )
-    }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ElementTheme {
-                val loggedInState by matrixAuthenticationService.loggedInStateFlow().collectAsState(initial = LoggedInState.NotLoggedIn)
-                Content(isLoggedIn = loggedInState is LoggedInState.LoggedIn, modifier = Modifier.fillMaxSize())
+                /*val loggedInState by matrixAuthenticationService.loggedInStateFlow().collectAsState(initial = LoggedInState.NotLoggedIn)*/
+                Content(isLoggedIn = false/*loggedInState is LoggedInState.LoggedIn*/, modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         isLoggedIn: Boolean,
         modifier: Modifier = Modifier
     ) {
-        if (!isLoggedIn) {
+       /* if (!isLoggedIn) {
             LoginScreen(authenticationService = matrixAuthenticationService).Content(modifier)
         } else {
             val matrixClient = runBlocking {
@@ -86,6 +86,6 @@ class MainActivity : ComponentActivity() {
                 matrixAuthenticationService.restoreSession(sessionId).getOrNull()
             }
             RoomListScreen(LocalContext.current, matrixClient!!).Content(modifier)
-        }
+        }*/
     }
 }

@@ -62,13 +62,17 @@ class ConfirmAccountProviderNode @AssistedInject constructor(
     override fun View(modifier: Modifier) {
         val state = presenter.present()
         val context = LocalContext.current
-        ConfirmAccountProviderView(
+
+        val eventSink = state.eventSink
+        eventSink.invoke(ConfirmAccountProviderEvents.Continue)
+        onLoginPasswordNeeded()
+       /* ConfirmAccountProviderView(
             state = state,
             modifier = modifier,
             onOidcDetails = ::onOidcDetails,
             onNeedLoginPassword = ::onLoginPasswordNeeded,
             onChange = ::onChangeAccountProvider,
             onLearnMoreClick = { openLearnMorePage(context) },
-        )
+        )*/
     }
 }
